@@ -314,3 +314,24 @@ spawn(function()
     end
     end
 end)
+
+
+spawn(function()
+    while task.wait(30) do
+        local payloadHeartbeat = {
+            ["JobId"] = tostring(game.JobId),
+            ["Username"] = game.Players.LocalPlayer.Name,
+            ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Type"] = "Heartbeat"
+        }
+        request({
+            Url = "http://103.228.37.26:3000/data-private",
+            Method = 'POST',
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = game:GetService("HttpService"):JSONEncode(payloadHeartbeat)
+        })
+    end
+end)

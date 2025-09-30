@@ -1,4 +1,12 @@
-local requests = http_request or request
+repeat
+        task.wait()
+    until game.CoreGui
+repeat task.wait()
+game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam","Pirates")
+
+until game.Players.LocalPlayer.Team ~= nil and game:IsLoaded()
+
+local requests = (syn and syn.request) or request or (http and http.request) or http_request
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -12,6 +20,27 @@ print("LOGGING")
 repeat
     wait()
 until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
+local url = "https://discord.com/api/webhooks/1178686515279319122/lVfvcS9fzwxrODA2K1ZAzxqrXnkS6-7gDCGl30WA3jFn2Z9Ax4VnrD2f2jxARfUL1u_I"
+local data = {
+        ["content"] = "Test Webhook",
+        ["embeds"] = {
+            {
+                ["title"] = " Cac",
+                ["description"] = game.Players.LocalPlayer.Name,
+                ["type"] = "rich",
+                ["color"] = tonumber(0xff8200),
+            }
+        }
+        }
+        local newdata = game:GetService("HttpService"):JSONEncode(data)
+    
+        local headers = {
+        ["content-type"] = "application/json"
+        }
+        local abcdef = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+        request(abcdef)
+
+
 
 local plr = game.Players.LocalPlayer
 
@@ -101,7 +130,7 @@ function HaveRareBoss(name)
     end
 end
 
-local rareboss = {"rip_indra True Form", "Darkbeard", "Dough King", "Cursed Captain","Soul Reaper"}
+local rareboss = {"rip_indra True Form", "Darkbeard", "Dough King", "Cursed Captain"}
 local save = {}
 function havelegnpc()
     if not workspace.NPCs:FindFirstChild("Legendary Sword Dealer ") then

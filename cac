@@ -152,9 +152,8 @@ local v246 = nil
 spawn(function()
     while wait() do
         v245, v246 = game.ReplicatedStorage.Remotes.CommF_:InvokeServer("ColorsDealer", "1")
-        if v245 and Haki ~= OldHaki and not hakisend then
+        if v245 and Haki ~= OldHaki then
             OldHaki = Haki
-		hakisend = true
             local payloadleghaki = {
                 ["JobId"] = tostring(game.JobId),
                 ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
@@ -248,9 +247,8 @@ spawn(function()
                 Body = game:GetService("HttpService"):JSONEncode(payloadPrehistocricIsland)
             })
             end
-    if getmirage() and not miragesent then
+    if getmirage() then
         print("SEND MIRAGE")
-        miragesent = true
             local payloadmirage = {
                 ["JobId"] = tostring(game.JobId),
                 ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
@@ -291,8 +289,7 @@ spawn(function()
                 Body = game:GetService("HttpService"):JSONEncode(payloadmoon)
             })
     end 
-    if getelite() and not elitesnet then
-        elitesnet = true
+    if getelite() then
         print("send elite")
         local payloadmirage = {
                 ["JobId"] = tostring(game.JobId),

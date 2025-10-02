@@ -200,8 +200,7 @@ spawn(function()
             end
                 end
     for i, v in pairs(rareboss) do
-            if HaveRareBoss(v) and not table.find(save, v) then
-                table.insert(save, v)
+            if HaveRareBoss(v) then
                 print("SENT BOSS", v)
                 local payloadRareBoss = {
                     ["JobId"] = tostring(game.JobId),

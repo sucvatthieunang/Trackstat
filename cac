@@ -322,10 +322,10 @@ spawn(function()
                 ["JobId"] = tostring(game.JobId),
                 ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Catsle"] = catsle(),
+                ["Castle"] = catsle(),
                 ["IsNight"] = isnight(),
                 ["Script To Join"] = scriptojoin(),
-                ["Type"] = "Catsle"
+                ["Type"] = "Castle"
             }
             local DataCallBack = request({
                 Url = "http://103.228.37.26:3000/data-private",

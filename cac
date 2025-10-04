@@ -144,8 +144,16 @@ function havelegnpc()
     end
 end
 
-
-
+local Castle_Mob = {"Galley Pirate","Galley Captain","Raider","Mercenary","Vampire","Zombie","Snow Trooper","Winter Warrior","Lab Subordinate","Horned Warrior","Magma Ninja","Lava Pirate","Ship Deckhand","Ship Engineer","Ship Steward","Ship Officer","Arctic Warrior","Snow Lurker","Sea Soldier","Water Fighter"}
+function castle()
+for i = 1,#Castle_Mob do
+            if game:GetService("ReplicatedStorage"):FindFirstChild(Castle_Mob[i]) then
+              for _,v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+                if table.find(Castle_Mob, v.Name) then return true end
+              end
+            end
+          end
+end
 
 local v245 = nil
 local v246 = nil
@@ -298,6 +306,26 @@ spawn(function()
                 ["IsNight"] = isnight(),
                 ["Script To Join"] = scriptojoin(),
                 ["Type"] = "Elite"
+            }
+            local DataCallBack = request({
+                Url = "http://103.228.37.26:3000/data-private",
+                Method = 'POST',
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = game:GetService("HttpService"):JSONEncode(payloadmirage)
+            })
+    end
+	if castle() then
+        print("send castle")
+        local payloadmirage = {
+                ["JobId"] = tostring(game.JobId),
+                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
+                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+                ["Catsle"] = catsle(),
+                ["IsNight"] = isnight(),
+                ["Script To Join"] = scriptojoin(),
+                ["Type"] = "Catsle"
             }
             local DataCallBack = request({
                 Url = "http://103.228.37.26:3000/data-private",

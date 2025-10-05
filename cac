@@ -130,7 +130,7 @@ function HaveRareBoss(name)
     end
 end
 
-local rareboss = {"rip_indra True Form", "Darkbeard", "Dough King", "Cake Queen","Soul Reaper"}
+local rareboss = {"rip_indra True Form", "Darkbeard", "Dough King", "Soul Reaper"}
 local save = {}
 function havelegnpc()
     if not workspace.NPCs:FindFirstChild("Legendary Sword Dealer ") then

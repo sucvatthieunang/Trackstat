@@ -318,7 +318,7 @@ spawn(function()
             })
     end
     if castle() then
-        print("send elite")
+        print("send castle")
         local payloadmirage = {
                 ["JobId"] = tostring(game.JobId),
                 ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,

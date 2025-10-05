@@ -144,17 +144,7 @@ function havelegnpc()
     end
 end
 
-function castle()
-    local success, result = pcall(function()
-        return game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("PirateRaid", "Check")
-    end)
 
-    if success and result then
-        return true
-    else
-        return false
-    end
-end
 
 local v245 = nil
 local v246 = nil
@@ -307,26 +297,6 @@ spawn(function()
                 ["IsNight"] = isnight(),
                 ["Script To Join"] = scriptojoin(),
                 ["Type"] = "Elite"
-            }
-            local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/data-private",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadmirage)
-            })
-    end
-    if castle() then
-        print("send castle")
-        local payloadmirage = {
-                ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Castle"] = castle(),
-                ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
-                ["Type"] = "Castle"
             }
             local DataCallBack = request({
                 Url = "http://103.228.37.26:3000/data-private",

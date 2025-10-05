@@ -145,8 +145,14 @@ function havelegnpc()
 end
 
 function castle()
-    if string.find(game:GetService("Players")["LocalPlayer"].PlayerGui:FindFirstChild("Notifications").NotificationTemplate.Text,"pirates are raiding") then
-        return
+    local success, result = pcall(function()
+        return game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("PirateRaid", "Check")
+    end)
+
+    if success and result then
+        return true
+    else
+        return false
     end
 end
 

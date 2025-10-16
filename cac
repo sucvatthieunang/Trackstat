@@ -164,7 +164,7 @@ spawn(function()
             }
             print("Send Haki Data")
             local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/nigga",
+                Url = "http://103.228.37.26:2025/nigga",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -189,7 +189,7 @@ spawn(function()
                     ["Type"] = "Legendary Sword"
                 }
                 local DataCallBack = request({
-                    Url = "http://103.228.37.26:3000/nigga",
+                    Url = "http://103.228.37.26:2025/nigga",
                     Method = 'POST',
                     Headers = {
                         ["Content-Type"] = "application/json"
@@ -211,7 +211,7 @@ spawn(function()
                     ["Type"] = "Rare Boss"
                 }
                 local DataCallBack = request({
-                    Url = "http://103.228.37.26:3000/nigga",
+                    Url = "http://103.228.37.26:2025/nigga",
                     Method = 'POST',
                     Headers = {
                         ["Content-Type"] = "application/json"
@@ -237,7 +237,7 @@ spawn(function()
                 ["Type"] = "Prehistoric Island"
             }
             local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/nigga",
+                Url = "http://103.228.37.26:2025/nigga",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -257,7 +257,7 @@ spawn(function()
                 ["Type"] = "Mirage"
             }
             local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/nigga",
+                Url = "http://103.228.37.26:2025/nigga",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -279,7 +279,7 @@ spawn(function()
             print("S#ENT FULL MOON")
             LAstSend = os.time()
             local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/nigga",
+                Url = "http://103.228.37.26:2025/nigga",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -299,7 +299,7 @@ spawn(function()
                 ["Type"] = "Elite"
             }
             local DataCallBack = request({
-                Url = "http://103.228.37.26:3000/nigga",
+                Url = "http://103.228.37.26:2025/nigga",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"

@@ -153,7 +153,7 @@ function HaveRareBoss(name)
     end
 end
 
-local rareboss = {"rip_indra True Form", "Dough King", "Soul Reaper","Cake Prince"}
+local rareboss = {"rip_indra True Form", "Dough King", "Soul Reaper","Cursed Captain","Darkbeard","Cake Prince"}
 local save = {}
 function havelegnpc()
     if not workspace.NPCs:FindFirstChild("Legendary Sword Dealer ") then
@@ -197,34 +197,60 @@ spawn(function()
 
             })
         end
-    for i, v in pairs(rareboss) do
-            if HaveRareBoss(v) then
-                local payloadRareBoss = {
+        if SeaIndex == 2 then
+            if havelegnpc() then
+                local v242 = game.ReplicatedStorage.Remotes.CommF_:InvokeServer("LegendarySwordDealer", "1");
+                if OldSword == v242 then return end 
+                OldSword = v242
+                local payloadleg = {
                     ["JobId"] = tostring(game.JobId),
                     ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
                     ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                    ["Rare Boss"] = v,
+                    ["Sword"] = v242,
                     ["IsNight"] = isnight(),
                     ["Script To Join"] = scriptojoin(),
                     ["PlaceID"] = game.PlaceId,
                     ["cac"] = game.Players.LocalPlayer.Name,
-                    ["Type"] = "Rare Boss"
+                    ["Type"] = "Sword"
                 }
-                anat("Boss", v, game.JobId, game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers)
                 local DataCallBack = request({
-                    Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                    Url = "http://103.176.24.174:2902/abqU2IemNb",
                     Method = 'POST',
                     Headers = {
                         ["Content-Type"] = "application/json"
                     },
-                    Body = game:GetService("HttpService"):JSONEncode(payloadRareBoss)
+                    Body = game:GetService("HttpService"):JSONEncode(payloadleg)
                 })
-                --  repeat wait() until not HavePrehistoricIsland()
             end
-            if not HaveRareBoss(v) and table.find(save, v) then
-                save[i] = nil
+        end
+            for i, v in pairs(rareboss) do
+                if HaveRareBoss(v) then
+                    local payloadRareBoss = {
+                        ["JobId"] = tostring(game.JobId),
+                        ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
+                        ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+                        ["Rare Boss"] = v,
+                        ["IsNight"] = isnight(),
+                        ["Script To Join"] = scriptojoin(),
+                        ["PlaceID"] = game.PlaceId,
+                        ["cac"] = game.Players.LocalPlayer.Name,
+                        ["Type"] = "Rare Boss"
+                    }
+                    anat("Boss", v, game.JobId, game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers)
+                    local DataCallBack = request({
+                        Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                        Method = 'POST',
+                        Headers = {
+                            ["Content-Type"] = "application/json"
+                        },
+                        Body = game:GetService("HttpService"):JSONEncode(payloadRareBoss)
+                    })
+                    --  repeat wait() until not HavePrehistoricIsland()
+                end
+                if not HaveRareBoss(v) and table.find(save, v) then
+                    save[i] = nil
+                end
             end
-    end
             if HavePrehistoricIsland() and not toibingu then
                 toibingu = 1
             local payloadPrehistocricIsland = {

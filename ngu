@@ -197,32 +197,6 @@ spawn(function()
 
             })
         end
-        if SeaIndex == 2 then
-            if havelegnpc() then
-                local v242 = game.ReplicatedStorage.Remotes.CommF_:InvokeServer("LegendarySwordDealer", "1");
-                if OldSword == v242 then return end 
-                OldSword = v242
-                local payloadleg = {
-                    ["JobId"] = tostring(game.JobId),
-                    ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                    ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                    ["Sword"] = v242,
-                    ["IsNight"] = isnight(),
-                    ["Script To Join"] = scriptojoin(),
-                    ["PlaceID"] = game.PlaceId,
-                    ["cac"] = game.Players.LocalPlayer.Name,
-                    ["Type"] = "Sword"
-                }
-                local DataCallBack = request({
-                    Url = "http://103.176.24.174:2902/abqU2IemNb",
-                    Method = 'POST',
-                    Headers = {
-                        ["Content-Type"] = "application/json"
-                    },
-                    Body = game:GetService("HttpService"):JSONEncode(payloadleg)
-                })
-            end
-                end
     for i, v in pairs(rareboss) do
             if HaveRareBoss(v) then
                 local payloadRareBoss = {

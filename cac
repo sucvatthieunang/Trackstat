@@ -309,7 +309,7 @@ spawn(function()
                 Body = game:GetService("HttpService"):JSONEncode(payloadmirage)
             })
     end
-    if berry() and SeaIndex == 3 then 
+    if berry() then 
                     local payloadberry = {
                               ["JobId"] = tostring(game.JobId),
                               ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,

@@ -153,7 +153,7 @@ function HaveRareBoss(name)
     end
 end
 
-local rareboss = {"rip_indra True Form", "Dough King", "Soul Reaper","Cake Prince"}
+local rareboss = {"rip_indra True Form", "Dough King", "Soul Reaper"}
 local save = {}
 function havelegnpc()
     if not workspace.NPCs:FindFirstChild("Legendary Sword Dealer ") then
@@ -182,7 +182,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Haki"] = v245,
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Legendary"
@@ -197,32 +196,7 @@ spawn(function()
 
             })
         end
-        if SeaIndex == 2 then
-            if havelegnpc() then
-                local v242 = game.ReplicatedStorage.Remotes.CommF_:InvokeServer("LegendarySwordDealer", "1");
-                if OldSword == v242 then return end 
-                OldSword = v242
-                local payloadleg = {
-                    ["JobId"] = tostring(game.JobId),
-                    ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                    ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                    ["Sword"] = v242,
-                    ["IsNight"] = isnight(),
-                    ["Script To Join"] = scriptojoin(),
-                    ["PlaceID"] = game.PlaceId,
-                    ["cac"] = game.Players.LocalPlayer.Name,
-                    ["Type"] = "Sword"
-                }
-                local DataCallBack = request({
-                    Url = "http://103.176.24.174:2902/abqU2IemNb",
-                    Method = 'POST',
-                    Headers = {
-                        ["Content-Type"] = "application/json"
-                    },
-                    Body = game:GetService("HttpService"):JSONEncode(payloadleg)
-                })
-            end
-                end
+        
     for i, v in pairs(rareboss) do
             if HaveRareBoss(v) then
                 local payloadRareBoss = {
@@ -231,7 +205,6 @@ spawn(function()
                     ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                     ["Rare Boss"] = v,
                     ["IsNight"] = isnight(),
-                    ["Script To Join"] = scriptojoin(),
                     ["PlaceID"] = game.PlaceId,
                     ["cac"] = game.Players.LocalPlayer.Name,
                     ["Type"] = "Rare Boss"
@@ -259,7 +232,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Prehistoric Island"] = HavePrehistoricIsland(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Island"
@@ -280,7 +252,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Mirage"] = getmirage(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Mirage"
@@ -302,7 +273,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["MoonPhase"] = getfm(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Moon"
@@ -324,7 +294,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Elite"] = getelite(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Elite"
@@ -345,7 +314,6 @@ spawn(function()
                               ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                               ["Berry"] = berry(),
                               ["IsNight"] = isnight(),
-                              ["Script To Join"] = scriptojoin(),
                               ["PlaceID"] = game.PlaceId,
                               ["cac"] = game.Players.LocalPlayer.Name,
                               ["Type"] = "Berry"
@@ -365,7 +333,6 @@ spawn(function()
                               ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
                               ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                               ["IsNight"] = isnight(),
-                              ["Script To Join"] = scriptojoin(),
                               ["PlaceID"] = game.PlaceId,
                               ["cac"] = game.Players.LocalPlayer.Name,
                               ["Type"] = "Castle"

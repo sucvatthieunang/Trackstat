@@ -182,7 +182,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Haki"] = v245,
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Legendary"
@@ -206,7 +205,6 @@ spawn(function()
                     ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                     ["Rare Boss"] = v,
                     ["IsNight"] = isnight(),
-                    ["Script To Join"] = scriptojoin(),
                     ["PlaceID"] = game.PlaceId,
                     ["cac"] = game.Players.LocalPlayer.Name,
                     ["Type"] = "Rare Boss"
@@ -234,7 +232,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Prehistoric Island"] = HavePrehistoricIsland(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Island"
@@ -255,7 +252,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Mirage"] = getmirage(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Mirage"
@@ -277,7 +273,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["MoonPhase"] = getfm(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Moon"
@@ -299,7 +294,6 @@ spawn(function()
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                 ["Elite"] = getelite(),
                 ["IsNight"] = isnight(),
-                ["Script To Join"] = scriptojoin(),
                 ["PlaceID"] = game.PlaceId,
                 ["cac"] = game.Players.LocalPlayer.Name,
                 ["Type"] = "Elite"
@@ -320,7 +314,6 @@ spawn(function()
                               ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                               ["Berry"] = berry(),
                               ["IsNight"] = isnight(),
-                              ["Script To Join"] = scriptojoin(),
                               ["PlaceID"] = game.PlaceId,
                               ["cac"] = game.Players.LocalPlayer.Name,
                               ["Type"] = "Berry"
@@ -340,7 +333,6 @@ spawn(function()
                               ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
                               ["ClockTime"] = math.floor(game.Lighting.ClockTime),
                               ["IsNight"] = isnight(),
-                              ["Script To Join"] = scriptojoin(),
                               ["PlaceID"] = game.PlaceId,
                               ["cac"] = game.Players.LocalPlayer.Name,
                               ["Type"] = "Castle"

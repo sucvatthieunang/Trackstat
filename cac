@@ -187,7 +187,7 @@ spawn(function()
                 ["Type"] = "Legendary"
             }
             local DataCallBack = request({
-                Url = "http://103.176.24.174:2902/abqU2IemNb",
+                Url = "http://103.216.127.131:2902/abqU2IemNb",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -211,7 +211,7 @@ spawn(function()
                 }
                 anat("Boss", v, game.JobId, game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers)
                 local DataCallBack = request({
-                    Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                    Url = "http://103.216.127.131:0901/1DxKuaiMHG",
                     Method = 'POST',
                     Headers = {
                         ["Content-Type"] = "application/json"
@@ -237,7 +237,7 @@ spawn(function()
                 ["Type"] = "Island"
             }
             local DataCallBack = request({
-                Url = "http://103.176.24.174:2902/abqU2IemNb",
+                Url = "http://103.216.127.131:2902/abqU2IemNb",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -257,7 +257,7 @@ spawn(function()
                 ["Type"] = "Mirage"
             }
             local DataCallBack = request({
-                Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                Url = "http://103.216.127.131:0901/1DxKuaiMHG",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -279,7 +279,7 @@ spawn(function()
             }
             LAstSend = os.time()
             local DataCallBack = request({
-                Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                Url = "http://103.216.127.131:0901/1DxKuaiMHG",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -299,7 +299,7 @@ spawn(function()
                 ["Type"] = "Elite"
             }
             local DataCallBack = request({
-                Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                Url = "http://103.216.127.131:0901/1DxKuaiMHG",
                 Method = 'POST',
                 Headers = {
                     ["Content-Type"] = "application/json"
@@ -319,7 +319,7 @@ spawn(function()
                               ["Type"] = "Berry"
                           }
                           local DataCallBack = request({
-                              Url = "http://103.176.24.174:2902/abqU2IemNb",
+                              Url = "http://103.216.127.131:2902/abqU2IemNb",
                               Method = 'POST',
                               Headers = {
                                   ["Content-Type"] = "application/json"
@@ -338,7 +338,7 @@ spawn(function()
                               ["Type"] = "Castle"
                           }
                           local DataCallBack = request({
-                              Url = "http://103.176.24.174:0901/1DxKuaiMHG",
+                              Url = "http://103.216.127.131:0901/1DxKuaiMHG",
                               Method = 'POST',
                               Headers = {
                                   ["Content-Type"] = "application/json"

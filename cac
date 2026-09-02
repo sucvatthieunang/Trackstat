@@ -78,13 +78,14 @@ function getmirage()
     end
 end
 function getelite()
-    if game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == true then
-	      if string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Diablo") or string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Urban") or string.find(game.Players.LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Deandre") then
-		    for i,v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-		      if string.find(v.Name,"Diablo") or string.find(v.Name,"Urban") or string.find(v.Name,"Deandre") then
-                return v.Name
-                end
-            end
+	for i,v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
+		if string.find(v.Name,"Diablo") or string.find(v.Name,"Urban") or string.find(v.Name,"Deandre") then
+        	return v.Name
+        end
+    end
+	for i,v in pairs(Workspace.Enemies:GetChildren()) do
+		if string.find(v.Name,"Diablo") or string.find(v.Name,"Urban") or string.find(v.Name,"Deandre") then
+        	return v.Name
         end
     end
 end

@@ -1,22 +1,8 @@
 local ReadyUntil = os.clock() + 120
-repeat
-    task.wait(0.5)
-until game:IsLoaded() and game:GetService("Players").LocalPlayer and
-    game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded") or os.clock() >= ReadyUntil
-assert(game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded"), "Trackstat: player data not ready")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Plr = Players.LocalPlayer
-
-if not LPH_OBFUSCATED then
-    LPH_ENCSTR = LPH_ENCSTR or function(...)
-        return ...
-    end
-    LPH_NO_VIRTUALIZE = LPH_NO_VIRTUALIZE or function(...)
-        return ...
-    end
-end
 
 function anat(_type, extra)
     request({

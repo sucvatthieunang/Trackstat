@@ -300,7 +300,7 @@ Poll("Moon", function()
             ["Type"] = "Moon"
         }
 
-        Send(EventURL, payloadmoon, 1200)
+        Send(EventURL, payloadmoon)
     end
 end)
 

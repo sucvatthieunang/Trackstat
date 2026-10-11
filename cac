@@ -1,10 +1,9 @@
+local ReadyUntil = os.clock() + 120
 repeat
-    wait()
-until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
-repeat
-    wait()
-until not game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)")
-
+    task.wait(0.5)
+until game:IsLoaded() and game:GetService("Players").LocalPlayer and
+    game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded") or os.clock() >= ReadyUntil
+assert(game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded"), "Trackstat: player data not ready")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -19,9 +18,6 @@ if not LPH_OBFUSCATED then
     end
 end
 
-repeat
-    wait()
-until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
 function anat(_type, extra)
     request({
         Url = 'https://discord.com/api/webhooks/1429575250424889487/Pfa8KI8KkFC_6uw5lnkYFhv1RMmyjnM-_n1E4AMj2qZoi3N_Vy1xz0bDqXhYOgjUE48M', 
@@ -47,12 +43,14 @@ end
 
 local plr = game.Players.LocalPlayer
 
-local l_Remotes_0 = game.ReplicatedStorage:WaitForChild("Remotes");
-if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)") then
-    repeat
-        wait()
-    until not game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)")
-end
+local Remotes = ReplicatedStorage:WaitForChild("Remotes")
+local CommF = Remotes and Remotes:WaitForChild("CommF_")
+assert(CommF, "Trackstat: CommF_ not available")
+local HttpService = game:GetService("HttpService")
+local HttpRequest = request or http_request or (syn and syn.request) or (http and http.request)
+assert(type(HttpRequest) == "function", "Trackstat: executor has no HTTP request")
+request = HttpRequest
+
 function scriptojoin()
     return
         'game:GetService("TeleportService"):TeleportToPlaceInstance(' .. game.PlaceId .. ',"' .. game.JobId .. '",' ..
@@ -60,48 +58,31 @@ function scriptojoin()
 end
 
 function getfm()
-    if game:GetService("Lighting"):GetAttribute("MoonPhase") == 5 and
-        (math.floor(game.Lighting.ClockTime) >= 12 or math.floor(game.Lighting.ClockTime) < 5) then
-        return "Full Moon"
-    elseif game:GetService("Lighting"):GetAttribute("MoonPhase") == 4 then
-        return "Next Night"
-    else
-        return "Bad Moon"
-    end
+    local Phase = game:GetService("Lighting"):GetAttribute("MoonPhase")
+    if Phase == 5 then return "Full Moon" end
+    if Phase == 4 then return "Next Night" end
+    return "Bad Moon"
 end
 
 function getmirage()
-    if game:GetService("Workspace").Map:FindFirstChild("MysticIsland") then
-        return true
-    else
-        return false
-    end
+    local Map = workspace:FindFirstChild("Map")
+    return Map ~= nil and Map:FindFirstChild("MysticIsland") ~= nil
 end
+
 function getelite()
-	for i,v in pairs(game:GetService("ReplicatedStorage"):GetChildren()) do
-		if string.find(v.Name,"Diablo") or string.find(v.Name,"Urban") or string.find(v.Name,"Deandre") then
-        	return v.Name
-        end
-    end
-	for i,v in pairs(Workspace.Enemies:GetChildren()) do
-		if string.find(v.Name,"Diablo") or string.find(v.Name,"Urban") or string.find(v.Name,"Deandre") then
-        	return v.Name
-        end
+    for _, Name in {"Diablo", "Urban", "Deandre"} do
+        if HaveRareBoss(Name) then return Name end
     end
 end
+
 function notifications()
    for _, v2 in pairs({workspace.Enemies, ReplicatedStorage}) do for _, v in pairs(v2:GetChildren()) do if v:IsA("Model") and (v.WorldPivot.Position - Vector3.new(-5000, 350, -3035)).Magnitude <= 3000 and v.Name ~= "Blank Buddy" then return true end end
         end
 end
 function checkgatcan()
-    local a = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer(
-        "CheckTempleDoor")
-    if a then
-        return "Pulled"
-    else
-        return "No"
-    end
+    return CommF:InvokeServer("CheckTempleDoor") == true and "Pulled" or "No"
 end
+
 function berry()
     local CollectionService= game:GetService("CollectionService")
         local Players= game:GetService("Players")
@@ -120,12 +101,12 @@ function berry()
     end
 end
 function data()
-    return math.floor(game.Lighting.ClockTime) .. " | " .. game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers ..
-               getfm() .. getmirage() .. checkgatcan()
+    return math.floor(game.Lighting.ClockTime) .. " | " .. Players.NumPlayers .. "/" .. Players.MaxPlayers ..
+        " | " .. getfm() .. " | " .. tostring(getmirage()) .. " | " .. checkgatcan()
 end
 
 function isrealmoon()
-    return (math.floor(game.Lighting.ClockTime) >= 12 or math.floor(game.Lighting.ClockTime) < 5)
+    return isnight()
 end
 
 function isnight()
@@ -133,219 +114,306 @@ function isnight()
 end
 
 function HavePrehistoricIsland()
-    return workspace.Map:FindFirstChild("PrehistoricIsland")
+    local Map = workspace:FindFirstChild("Map")
+    return Map ~= nil and Map:FindFirstChild("PrehistoricIsland") ~= nil
 end
 
 function HaveRareBoss(name)
-    for i, v in game:GetService("ReplicatedStorage"):GetChildren() do
-        if string.find(v.Name, name) then
-            return true
+    for _, Folder in {workspace:FindFirstChild("Enemies"), ReplicatedStorage} do
+        if not Folder then continue end
+        for _, Boss in Folder:GetChildren() do
+            local Humanoid = Boss:IsA("Model") and Boss:FindFirstChildOfClass("Humanoid")
+            if Boss.Name:find(name, 1, true) and Humanoid and Humanoid.Health > 0 then return true end
         end
     end
-    for i, v in workspace.Enemies:GetChildren() do
-        if string.find(v.Name, name) then
-            return true
-        end
-    end
-    for i, v in workspace._WorldOrigin.EnemySpawns:GetChildren() do
-        if string.find(v.Name, name) then
-            return true
-        end
-    end
+    return false
 end
 
-local rareboss = {"rip_indra True Form", "Dough King", "Soul Reaper"}
-local save = {}
 function havelegnpc()
-    if not workspace.NPCs:FindFirstChild("Legendary Sword Dealer ") then
-        if game:GetService("ReplicatedStorage").NPCs["Legendary Sword Dealer "].HumanoidRootPart.CFrame.Position.X ~= 0 then
-            return true
-        end
-    else
-        if (workspace.NPCs:FindFirstChild("Legendary Sword Dealer ").HumanoidRootPart.CFrame.X) ~= 0 then
-            return true
-        end
+    for _, Root in {workspace, ReplicatedStorage} do
+        local NPCs = Root:FindFirstChild("NPCs")
+        local Dealer = NPCs and (NPCs:FindFirstChild("Legendary Sword Dealer ") or NPCs:FindFirstChild("Legendary Sword Dealer"))
+        local Part = Dealer and Dealer:FindFirstChild("HumanoidRootPart")
+        if Part and Part.Position.X ~= 0 then return true end
     end
+    return false
 end
 
+local Previous = getgenv().TrackstatRuntime
+if Previous and Previous.Stop then
+    Previous:Stop()
+end
+local Runtime = {
+    Alive = true,
+    Threads = {},
+    Jobs = {},
+    Checks = {}
+}
+function Runtime:Stop()
+    self.Alive = false
+    for _, Thread in self.Threads do
+        pcall(task.cancel, Thread)
+    end
+    for _, Thread in self.Jobs do
+        pcall(task.cancel, Thread)
+    end
+end
+getgenv().TrackstatRuntime = Runtime
 
+local Sent = {}
+local PrimaryURL = "http://103.216.126.28:2029/abqU2IemNb"
+local EventURL = "http://103.216.126.28:0901/1DxKuaiMHG"
+local function Send(URL, Payload, Cooldown)
+    local Value = Payload.Haki or Payload["Rare Boss"] or Payload["Prehistoric Island"] or
+        Payload.Mirage or Payload.MoonPhase or Payload.Elite or Payload.Berry or Payload.Fruit
+    local Key = Payload.Type .. ":" .. tostring(Value)
 
-local v245 = nil
-local v246 = nil
-spawn(function()
-    while wait() do
-        v245, v246 = game.ReplicatedStorage.Remotes.CommF_:InvokeServer("ColorsDealer", "1")
-        if v245 and not OldHaki then
-            OldHaki = Haki
-            local payloadleghaki = {
+    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 60) then
+        return false
+    end
+
+    local Response = HttpRequest({
+        Url = URL,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode(Payload),
+        Timeout = 10
+    })
+
+    local Status = type(Response) == "table" and tonumber(Response.StatusCode)
+    assert(Status and Status >= 200 and Status < 300, "Trackstat: HTTP " .. tostring(Status))
+
+    Sent[Key] = os.clock()
+    return true
+end
+
+local function Poll(Name, Check)
+    Runtime.Threads[#Runtime.Threads + 1] = task.spawn(function()
+        while Runtime.Alive do
+            local Done = false
+            Runtime.Jobs[Name] = task.spawn(function()
+                local OK, Error = xpcall(Check, debug.traceback)
+                Runtime.Checks[Name] = {
+                    OK = OK,
+                    Error = not OK and tostring(Error) or nil,
+                    At = os.clock()
+                }
+                if not OK then
+                    warn("[Trackstat] " .. Name .. ": " .. tostring(Error))
+                end
+                Done = true
+            end)
+            local Deadline = os.clock() + 15
+            repeat
+                task.wait(0.5)
+            until Done or not Runtime.Alive or os.clock() >= Deadline
+            if not Done then
+                pcall(task.cancel, Runtime.Jobs[Name])
+                Runtime.Checks[Name] = {
+                    OK = false,
+                    Error = "timeout",
+                    At = os.clock()
+                }
+                warn("[Trackstat] " .. Name .. ": timeout")
+            end
+            Runtime.Jobs[Name] = nil
+            task.wait(5)
+        end
+    end)
+end
+
+Poll("Haki", function()
+    if SeaIndex ~= 2 and SeaIndex ~= 3 then
+        return
+    end
+
+    local Haki = CommF:InvokeServer("ColorsDealer", "1")
+    if type(Haki) == "string" and Haki ~= "" then
+        local payloadleghaki = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Haki"] = Haki,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Legendary"
+        }
+
+        Send(PrimaryURL, payloadleghaki)
+    end
+end)
+
+for _, Name in {"rip_indra True Form", "Dough King", "Soul Reaper"} do
+    Poll(Name, function()
+        if SeaIndex == 3 and HaveRareBoss(Name) then
+            local payloadRareBoss = {
                 ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
+                ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
                 ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Haki"] = v245,
+                ["Rare Boss"] = Name,
                 ["IsNight"] = isnight(),
                 ["PlaceID"] = game.PlaceId,
-                ["cac"] = game.Players.LocalPlayer.Name,
-                ["Type"] = "Legendary"
+                ["cac"] = Players.LocalPlayer.Name,
+                ["Type"] = "Rare Boss"
             }
-            local DataCallBack = request({
-                Url = "http://103.199.10.15:2029/abqU2IemNb",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadleghaki)
 
-            })
+            if Send(EventURL, payloadRareBoss) then
+                anat("Boss", Name)
+            end
         end
-        
-    for i, v in pairs(rareboss) do
-            if HaveRareBoss(v) then
-                local payloadRareBoss = {
+    end)
+end
+
+Poll("Prehistoric", function()
+    if SeaIndex == 3 and HavePrehistoricIsland() then
+        local payloadPrehistoricIsland = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Prehistoric Island"] = true,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Island"
+        }
+
+        Send(PrimaryURL, payloadPrehistoricIsland)
+    end
+end)
+
+Poll("Mirage", function()
+    if SeaIndex == 3 and getmirage() then
+        local payloadmirage = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Mirage"] = true,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Mirage"
+        }
+
+        Send(EventURL, payloadmirage)
+    end
+end)
+
+Poll("Moon", function()
+    if SeaIndex == 3 and isrealmoon() and getfm() == "Full Moon" then
+        local payloadmoon = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["MoonPhase"] = getfm(),
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Moon"
+        }
+
+        Send(EventURL, payloadmoon, 1200)
+    end
+end)
+
+Poll("Elite", function()
+    if SeaIndex ~= 3 then
+        return
+    end
+
+    local Elite = getelite()
+    if Elite then
+        local payloadelite = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Elite"] = Elite,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Elite"
+        }
+
+        Send(PrimaryURL, payloadelite)
+    end
+end)
+
+Poll("Berry", function()
+    if SeaIndex ~= 3 then
+        return
+    end
+
+    local Berry = berry()
+    if Berry then
+        local payloadberry = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Berry"] = Berry,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Berry"
+        }
+
+        Send(PrimaryURL, payloadberry)
+    end
+end)
+
+Poll("Castle", function()
+    if SeaIndex == 3 and notifications() then
+        local payloadcastle = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Castle"
+        }
+
+        Send(EventURL, payloadcastle)
+    end
+end)
+
+local FruitData
+Poll("Fruit", function()
+    if not FruitData then
+        local Entries = {}
+        for _, Config in require(ReplicatedStorage.ItemConfig).dumpItems() do
+            local Index, Display = Config.Index, Config.Display
+            if Index and Index.StorageKey and Index.IdType == "PhysicalMoveset" and Display and Display.Category == "Blox Fruit" then
+                local Data = {
+                    Name = Display.Name or Index.StorageKey,
+                    Value = tonumber((Config.Quality or {}).MoneyPrice)
+                }
+                Entries[tostring(Index.ItemId)], Entries[Index.StorageKey] = Data, Data
+                Entries[Data.Name], Entries[Data.Name .. " Fruit"] = Data, Data
+            end
+        end
+        FruitData = Entries
+    end
+    for _, Fruit in workspace:GetChildren() do
+        if (Fruit:IsA("Tool") or Fruit:IsA("Model")) and Fruit:FindFirstChild("Handle") then
+            local Data = FruitData[tostring(Fruit:GetAttribute("ItemId"))] or
+                FruitData[Fruit:GetAttribute("OriginalName")] or FruitData[Fruit.Name]
+            if Data and Data.Value and Data.Value > 2700000 then
+                local payloadfruit = {
                     ["JobId"] = tostring(game.JobId),
-                    ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
+                    ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
                     ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                    ["Rare Boss"] = v,
+                    ["Fruit"] = Data.Name,
+                    ["Value"] = Data.Value,
                     ["IsNight"] = isnight(),
                     ["PlaceID"] = game.PlaceId,
-                    ["cac"] = game.Players.LocalPlayer.Name,
-                    ["Type"] = "Rare Boss"
+                    ["cac"] = Players.LocalPlayer.Name,
+                    ["Type"] = "Fruit"
                 }
-                anat("Boss", v, game.JobId, game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers)
-                local DataCallBack = request({
-                    Url = "http://103.199.10.15:0901/1DxKuaiMHG",
-                    Method = 'POST',
-                    Headers = {
-                        ["Content-Type"] = "application/json"
-                    },
-                    Body = game:GetService("HttpService"):JSONEncode(payloadRareBoss)
-                })
-                --  repeat wait() until not HavePrehistoricIsland()
+
+                Send(EventURL, payloadfruit)
             end
-            if not HaveRareBoss(v) and table.find(save, v) then
-                save[i] = nil
-            end
-    end
-            if HavePrehistoricIsland() and not toibingu then
-                toibingu = 1
-            local payloadPrehistocricIsland = {
-                ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Prehistoric Island"] = HavePrehistoricIsland(),
-                ["IsNight"] = isnight(),
-                ["PlaceID"] = game.PlaceId,
-                ["cac"] = game.Players.LocalPlayer.Name,
-                ["Type"] = "Island"
-            }
-            local DataCallBack = request({
-                Url = "http://103.199.10.15:2029/abqU2IemNb",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadPrehistocricIsland)
-            })
-            end
-    if getmirage() then
-            local payloadmirage = {
-                ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Mirage"] = getmirage(),
-                ["IsNight"] = isnight(),
-                ["PlaceID"] = game.PlaceId,
-                ["cac"] = game.Players.LocalPlayer.Name,
-                ["Type"] = "Mirage"
-            }
-            local DataCallBack = request({
-                Url = "http://103.199.10.15:0901/1DxKuaiMHG",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadmirage)
-            })
-    end
-    if isrealmoon() and getfm() == "Full Moon" then
-            if os.time() - ( LAstSend or 0 ) < 1200 then continue end
-            local payloadmoon = {
-                ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["MoonPhase"] = getfm(),
-                ["IsNight"] = isnight(),
-                ["PlaceID"] = game.PlaceId,
-                ["cac"] = game.Players.LocalPlayer.Name,
-                ["Type"] = "Moon"
-            }
-            LAstSend = os.time()
-            local DataCallBack = request({
-                Url = "http://103.199.10.15:0901/1DxKuaiMHG",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadmoon)
-            })
-    end 
-    if getelite() then
-        local payloadmirage = {
-                ["JobId"] = tostring(game.JobId),
-                ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                ["Elite"] = getelite(),
-                ["IsNight"] = isnight(),
-                ["PlaceID"] = game.PlaceId,
-                ["cac"] = game.Players.LocalPlayer.Name,
-                ["Type"] = "Elite"
-            }
-            local DataCallBack = request({
-                Url = "http://103.199.10.15:2029/abqU2IemNb",
-                Method = 'POST',
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = game:GetService("HttpService"):JSONEncode(payloadmirage)
-            })
-    end
-    if berry() and SeaIndex == 3 then 
-                    local payloadberry = {
-                              ["JobId"] = tostring(game.JobId),
-                              ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                              ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                              ["Berry"] = berry(),
-                              ["IsNight"] = isnight(),
-                              ["PlaceID"] = game.PlaceId,
-                              ["cac"] = game.Players.LocalPlayer.Name,
-                              ["Type"] = "Berry"
-                          }
-                          local DataCallBack = request({
-                              Url = "http://103.199.10.15:2029/abqU2IemNb",
-                              Method = 'POST',
-                              Headers = {
-                                  ["Content-Type"] = "application/json"
-                              },
-                              Body = game:GetService("HttpService"):JSONEncode(payloadberry)
-                          })
-            end
-        if  notifications() and SeaIndex == 3 then
-             local payloadberry = {
-                              ["JobId"] = tostring(game.JobId),
-                              ["Players"] = game.Players.NumPlayers .. "/" .. game.Players.MaxPlayers,
-                              ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-                              ["IsNight"] = isnight(),
-                              ["PlaceID"] = game.PlaceId,
-                              ["cac"] = game.Players.LocalPlayer.Name,
-                              ["Type"] = "Castle"
-                          }
-                          local DataCallBack = request({
-                              Url = "http://103.199.10.15:0901/1DxKuaiMHG",
-                              Method = 'POST',
-                              Headers = {
-                                  ["Content-Type"] = "application/json"
-                              },
-                              Body = game:GetService("HttpService"):JSONEncode(payloadberry)
-                          })
-            end
+        end
     end
 end)

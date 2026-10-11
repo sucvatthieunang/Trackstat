@@ -154,7 +154,7 @@ local function Send(URL, Payload, Cooldown)
         Payload.Mirage or Payload.MoonPhase or Payload.Elite or Payload.Berry or Payload.Fruit
     local Key = Payload.Type .. ":" .. tostring(Value)
 
-    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 60) then
+    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 10) then
         return false
     end
 

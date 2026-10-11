@@ -385,7 +385,7 @@ Poll("Fruit", function()
         if (Fruit:IsA("Tool") or Fruit:IsA("Model")) and Fruit:FindFirstChild("Handle") then
             local Data = FruitData[tostring(Fruit:GetAttribute("ItemId"))] or
                 FruitData[Fruit:GetAttribute("OriginalName")] or FruitData[Fruit.Name]
-            if Data and Data.Value and Data.Value > 2700000 then
+            if Data and Data.Value and Data.Value > 1000000 then
                 local payloadfruit = {
                     ["JobId"] = tostring(game.JobId),
                     ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,

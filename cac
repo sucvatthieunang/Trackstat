@@ -1,22 +1,8 @@
 local ReadyUntil = os.clock() + 120
-repeat
-    task.wait(0.5)
-until game:IsLoaded() and game:GetService("Players").LocalPlayer and
-    game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded") or os.clock() >= ReadyUntil
-assert(game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded"), "Trackstat: player data not ready")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Plr = Players.LocalPlayer
-
-if not LPH_OBFUSCATED then
-    LPH_ENCSTR = LPH_ENCSTR or function(...)
-        return ...
-    end
-    LPH_NO_VIRTUALIZE = LPH_NO_VIRTUALIZE or function(...)
-        return ...
-    end
-end
 
 function anat(_type, extra)
     request({
@@ -75,32 +61,9 @@ function getelite()
     end
 end
 
--- Boss được theo dõi theo thời gian thực bằng sự kiện (xem phần "Boss realtime" ở dưới).
-local BossKinds = {
-    ["rip_indra True Form"] = "Rare Boss",
-    ["Dough King"] = "Rare Boss",
-    ["Soul Reaper"] = "Rare Boss",
-    ["Diablo"] = "Elite",
-    ["Urban"] = "Elite",
-    ["Deandre"] = "Elite"
-}
-local BossState = {} -- Name -> {Kind, Models, Want, Reported, Health, LastSent, Busy}
-for Name, Kind in BossKinds do
-    BossState[Name] = {Kind = Kind, Models = {}, Want = false, Reported = false, Health = 0, LastSent = 0, Busy = false}
-end
-
-local CastlePosition = Vector3.new(-5000, 350, -3035)
 function notifications()
-    for _, Folder in {workspace:FindFirstChild("Enemies"), ReplicatedStorage} do
-        if not Folder then continue end
-        for _, Mob in Folder:GetChildren() do
-            if Mob:IsA("Model") and Mob.Name ~= "Blank Buddy" and
-                (Mob.WorldPivot.Position - CastlePosition).Magnitude <= 3000 then
-                return true
-            end
+   for _, v2 in pairs({workspace.Enemies, ReplicatedStorage}) do for _, v in pairs(v2:GetChildren()) do if v:IsA("Model") and (v.WorldPivot.Position - Vector3.new(-5000, 350, -3035)).Magnitude <= 3000 and v.Name ~= "Blank Buddy" then return true end end
         end
-    end
-    return false
 end
 function checkgatcan()
     return CommF:InvokeServer("CheckTempleDoor") == true and "Pulled" or "No"
@@ -142,7 +105,14 @@ function HavePrehistoricIsland()
 end
 
 function HaveRareBoss(name)
-    return BossState[name] ~= nil and BossState[name].Want
+    for _, Folder in {workspace:FindFirstChild("Enemies"), ReplicatedStorage} do
+        if not Folder then continue end
+        for _, Boss in Folder:GetChildren() do
+            local Humanoid = Boss:IsA("Model") and Boss:FindFirstChildOfClass("Humanoid")
+            if Boss.Name:find(name, 1, true) and Humanoid and Humanoid.Health > 0 then return true end
+        end
+    end
+    return false
 end
 
 function havelegnpc()
@@ -163,19 +133,15 @@ local Runtime = {
     Alive = true,
     Threads = {},
     Jobs = {},
-    Checks = {},
-    Connections = {}
+    Checks = {}
 }
 function Runtime:Stop()
     self.Alive = false
     for _, Thread in self.Threads do
         pcall(task.cancel, Thread)
     end
-    for _, Job in self.Jobs do
-        pcall(task.cancel, Job.Thread)
-    end
-    for _, Connection in self.Connections do
-        Connection:Disconnect()
+    for _, Thread in self.Jobs do
+        pcall(task.cancel, Thread)
     end
 end
 getgenv().TrackstatRuntime = Runtime
@@ -188,16 +154,10 @@ local function Send(URL, Payload, Cooldown)
         Payload.Mirage or Payload.MoonPhase or Payload.Elite or Payload.Berry or Payload.Fruit
     local Key = Payload.Type .. ":" .. tostring(Value)
 
-    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 60) then
+    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 10) then
         return false
     end
 
-    PostJSON(URL, Payload)
-    Sent[Key] = os.clock()
-    return true
-end
-
-function PostJSON(URL, Payload)
     local Response = HttpRequest({
         Url = URL,
         Method = "POST",
@@ -210,44 +170,44 @@ function PostJSON(URL, Payload)
 
     local Status = type(Response) == "table" and tonumber(Response.StatusCode)
     assert(Status and Status >= 200 and Status < 300, "Trackstat: HTTP " .. tostring(Status))
+
+    Sent[Key] = os.clock()
+    return true
 end
 
--- Một luồng lập lịch duy nhất chạy mọi check mỗi TICK giây.
--- TICK + cooldown 60s của Send vẫn nhỏ hơn TTL 90s phía server.
-local TICK = 15
-local TIMEOUT = 15
-local Checks = {}
 local function Poll(Name, Check)
-    Checks[#Checks + 1] = {Name = Name, Check = Check}
-end
-
-local function RunChecks()
-    local Now = os.clock()
-    for _, Item in Checks do
-        local Name, Job = Item.Name, Runtime.Jobs[Item.Name]
-        if Job then
-            -- Check lần trước vẫn chưa xong (vd. InvokeServer bị treo)
-            if Now - Job.Start >= TIMEOUT then
-                pcall(task.cancel, Job.Thread)
-                Runtime.Jobs[Name] = nil
-                Runtime.Checks[Name] = {OK = false, Error = "timeout", At = Now}
+    Runtime.Threads[#Runtime.Threads + 1] = task.spawn(function()
+        while Runtime.Alive do
+            local Done = false
+            Runtime.Jobs[Name] = task.spawn(function()
+                local OK, Error = xpcall(Check, debug.traceback)
+                Runtime.Checks[Name] = {
+                    OK = OK,
+                    Error = not OK and tostring(Error) or nil,
+                    At = os.clock()
+                }
+                if not OK then
+                    warn("[Trackstat] " .. Name .. ": " .. tostring(Error))
+                end
+                Done = true
+            end)
+            local Deadline = os.clock() + 15
+            repeat
+                task.wait(0.5)
+            until Done or not Runtime.Alive or os.clock() >= Deadline
+            if not Done then
+                pcall(task.cancel, Runtime.Jobs[Name])
+                Runtime.Checks[Name] = {
+                    OK = false,
+                    Error = "timeout",
+                    At = os.clock()
+                }
                 warn("[Trackstat] " .. Name .. ": timeout")
             end
-            continue
+            Runtime.Jobs[Name] = nil
+            task.wait(5)
         end
-        local Entry = {Start = Now}
-        Runtime.Jobs[Name] = Entry
-        Entry.Thread = task.spawn(function()
-            local OK, Error = xpcall(Item.Check, debug.traceback)
-            if Runtime.Jobs[Name] == Entry then
-                Runtime.Jobs[Name] = nil
-            end
-            Runtime.Checks[Name] = {OK = OK, Error = not OK and tostring(Error) or nil, At = os.clock()}
-            if not OK then
-                warn("[Trackstat] " .. Name .. ": " .. tostring(Error))
-            end
-        end)
-    end
+    end)
 end
 
 Poll("Haki", function()
@@ -272,140 +232,25 @@ Poll("Haki", function()
     end
 end)
 
--- ===================== Boss realtime =====================
--- Rare Boss (EventURL) và Elite (PrimaryURL) được theo dõi bằng sự kiện:
---  * boss xuất hiện  -> gửi ngay Alive = true
---  * boss chết/biến mất -> gửi ngay Alive = false để server xóa entry
---  * còn sống -> heartbeat mỗi BOSS_HEARTBEAT giây (kèm % máu), server giữ entry tối đa 30s
-local BOSS_HEARTBEAT = 10
-local DEATH_GRACE = 1 -- boss chuyển giữa Enemies <-> ReplicatedStorage có thể mất parent một nhịp
-local Enemies -- workspace.Enemies, gán khi tìm thấy
+for _, Name in {"rip_indra True Form", "Dough King", "Soul Reaper"} do
+    Poll(Name, function()
+        if SeaIndex == 3 and HaveRareBoss(Name) then
+            local payloadRareBoss = {
+                ["JobId"] = tostring(game.JobId),
+                ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+                ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+                ["Rare Boss"] = Name,
+                ["IsNight"] = isnight(),
+                ["PlaceID"] = game.PlaceId,
+                ["cac"] = Players.LocalPlayer.Name,
+                ["Type"] = "Rare Boss"
+            }
 
-local function MatchBoss(ModelName)
-    for Name in BossKinds do
-        if ModelName:find(Name, 1, true) then return Name end
-    end
-end
-
-local function BossPayload(Name, State, Alive)
-    return {
-        ["JobId"] = tostring(game.JobId),
-        ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
-        ["ClockTime"] = math.floor(game.Lighting.ClockTime),
-        [State.Kind] = Name,
-        ["Alive"] = Alive,
-        ["Health"] = State.Health,
-        ["IsNight"] = isnight(),
-        ["PlaceID"] = game.PlaceId,
-        ["cac"] = Players.LocalPlayer.Name,
-        ["Type"] = State.Kind
-    }
-end
-
--- Gửi trạng thái boss theo thứ tự (không bao giờ có 2 request cùng boss chạy song song,
--- nên "chết" không thể đến server trước "sống").
-local function SyncBoss(Name)
-    local State = BossState[Name]
-    if State.Busy then return end
-    State.Busy = true
-    task.spawn(function()
-        while Runtime.Alive do
-            if not State.Want and State.Reported then
-                task.wait(DEATH_GRACE)
-                if State.Want then continue end
-            end
-            local Want = State.Want
-            local Due = Want ~= State.Reported or (Want and os.clock() - State.LastSent >= BOSS_HEARTBEAT)
-            if not Due then break end
-            local URL = State.Kind == "Elite" and PrimaryURL or EventURL
-            local OK, Error = pcall(PostJSON, URL, BossPayload(Name, State, Want))
-            if not OK then
-                warn("[Trackstat] " .. Name .. ": " .. tostring(Error))
-                break -- thử lại ở heartbeat kế tiếp
-            end
-            if Want and not State.Reported and State.Kind == "Rare Boss" then
-                task.spawn(pcall, anat, "Boss", Name)
-            end
-            State.Reported, State.LastSent = Want, os.clock()
-        end
-        State.Busy = false
-    end)
-end
-
-local function UpdateBoss(Name)
-    local State = BossState[Name]
-    local Alive, Health = false, 0
-    for Model, Connections in State.Models do
-        local Parent = Model.Parent
-        if Parent == nil then
-            for _, Connection in Connections do Connection:Disconnect() end
-            State.Models[Model] = nil
-        elseif Parent == Enemies or Parent == ReplicatedStorage then
-            local Humanoid = Model:FindFirstChildOfClass("Humanoid")
-            if Humanoid and Humanoid.Health > 0 then
-                Alive = true
-                Health = math.max(Health, math.floor(Humanoid.Health / math.max(Humanoid.MaxHealth, 1) * 100))
-            end
-        end
-    end
-    State.Want, State.Health = Alive, Health
-    SyncBoss(Name)
-end
-
-local function WatchBoss(Model)
-    if not Model:IsA("Model") then return end
-    local Name = MatchBoss(Model.Name)
-    if not Name then return end
-    local State = BossState[Name]
-    if State.Models[Model] then return UpdateBoss(Name) end
-
-    local Connections = {}
-    State.Models[Model] = Connections
-    local function Update() UpdateBoss(Name) end
-    local function HookHumanoid(Humanoid)
-        Connections[#Connections + 1] = Humanoid.Died:Connect(Update)
-        Connections[#Connections + 1] = Humanoid.HealthChanged:Connect(function(Health)
-            if Health <= 0 then Update() end
-        end)
-    end
-    Connections[#Connections + 1] = Model.AncestryChanged:Connect(Update)
-    local Humanoid = Model:FindFirstChildOfClass("Humanoid")
-    if Humanoid then
-        HookHumanoid(Humanoid)
-    else
-        Connections[#Connections + 1] = Model.ChildAdded:Connect(function(Child)
-            if Child:IsA("Humanoid") then
-                HookHumanoid(Child)
-                Update()
-            end
-        end)
-    end
-    Update()
-end
-
-local function WatchFolder(Folder)
-    Runtime.Connections[#Runtime.Connections + 1] = Folder.ChildAdded:Connect(WatchBoss)
-    for _, Child in Folder:GetChildren() do
-        WatchBoss(Child)
-    end
-end
-
-if SeaIndex == 3 then
-    WatchFolder(ReplicatedStorage)
-    Runtime.Threads[#Runtime.Threads + 1] = task.spawn(function()
-        Enemies = workspace:WaitForChild("Enemies")
-        WatchFolder(Enemies)
-    end)
-    -- Heartbeat + lưới an toàn nếu lỡ một sự kiện nào đó
-    Runtime.Threads[#Runtime.Threads + 1] = task.spawn(function()
-        while Runtime.Alive do
-            task.wait(BOSS_HEARTBEAT / 2)
-            for Name in BossState do
-                UpdateBoss(Name)
+            if Send(EventURL, payloadRareBoss) then
+                anat("Boss", Name)
             end
         end
     end)
-    -- Rời server thì không báo "chết" (boss vẫn sống); entry tự hết hạn sau 30s ở server.
 end
 
 Poll("Prehistoric", function()
@@ -455,7 +300,29 @@ Poll("Moon", function()
             ["Type"] = "Moon"
         }
 
-        Send(EventURL, payloadmoon, 1200)
+        Send(EventURL, payloadmoon)
+    end
+end)
+
+Poll("Elite", function()
+    if SeaIndex ~= 3 then
+        return
+    end
+
+    local Elite = getelite()
+    if Elite then
+        local payloadelite = {
+            ["JobId"] = tostring(game.JobId),
+            ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+            ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+            ["Elite"] = Elite,
+            ["IsNight"] = isnight(),
+            ["PlaceID"] = game.PlaceId,
+            ["cac"] = Players.LocalPlayer.Name,
+            ["Type"] = "Elite"
+        }
+
+        Send(PrimaryURL, payloadelite)
     end
 end)
 
@@ -497,21 +364,6 @@ Poll("Castle", function()
     end
 end)
 
--- Theo dõi Tool/Model trong workspace bằng sự kiện thay vì GetChildren() mỗi lần check.
-local FruitCandidates = {}
-local function TrackFruit(Child)
-    if Child:IsA("Tool") or Child:IsA("Model") then
-        FruitCandidates[Child] = true
-    end
-end
-for _, Child in workspace:GetChildren() do
-    TrackFruit(Child)
-end
-Runtime.Connections[#Runtime.Connections + 1] = workspace.ChildAdded:Connect(TrackFruit)
-Runtime.Connections[#Runtime.Connections + 1] = workspace.ChildRemoved:Connect(function(Child)
-    FruitCandidates[Child] = nil
-end)
-
 local FruitData
 Poll("Fruit", function()
     if not FruitData then
@@ -529,11 +381,11 @@ Poll("Fruit", function()
         end
         FruitData = Entries
     end
-    for Fruit in FruitCandidates do
-        if Fruit:FindFirstChild("Handle") then
+    for _, Fruit in workspace:GetChildren() do
+        if (Fruit:IsA("Tool") or Fruit:IsA("Model")) and Fruit:FindFirstChild("Handle") then
             local Data = FruitData[tostring(Fruit:GetAttribute("ItemId"))] or
                 FruitData[Fruit:GetAttribute("OriginalName")] or FruitData[Fruit.Name]
-            if Data and Data.Value and Data.Value > 2700000 then
+            if Data and Data.Value and Data.Value > 1000000 then
                 local payloadfruit = {
                     ["JobId"] = tostring(game.JobId),
                     ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
@@ -549,13 +401,5 @@ Poll("Fruit", function()
                 Send(EventURL, payloadfruit)
             end
         end
-    end
-end)
-
-
-Runtime.Threads[#Runtime.Threads + 1] = task.spawn(function()
-    while Runtime.Alive do
-        RunChecks()
-        task.wait(TICK)
     end
 end)

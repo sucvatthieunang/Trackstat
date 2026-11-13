@@ -1,22 +1,8 @@
 local ReadyUntil = os.clock() + 120
-repeat
-    task.wait(0.5)
-until game:IsLoaded() and game:GetService("Players").LocalPlayer and
-    game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded") or os.clock() >= ReadyUntil
-assert(game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("DataLoaded"), "Trackstat: player data not ready")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Plr = Players.LocalPlayer
-
-if not LPH_OBFUSCATED then
-    LPH_ENCSTR = LPH_ENCSTR or function(...)
-        return ...
-    end
-    LPH_NO_VIRTUALIZE = LPH_NO_VIRTUALIZE or function(...)
-        return ...
-    end
-end
 
 function anat(_type, extra)
     request({
@@ -161,14 +147,14 @@ end
 getgenv().TrackstatRuntime = Runtime
 
 local Sent = {}
-local PrimaryURL = "http://103.216.126.28:2029/abqU2IemNb"
-local EventURL = "http://103.216.126.28:0901/1DxKuaiMHG"
+local PrimaryURL = "https://returning-freebsd-administered-pizza.trycloudflare.com/abqU2IemNb"
+local EventURL = "https://telecharger-ton-pubmed-reflections.trycloudflare.com/1DxKuaiMHG"
 local function Send(URL, Payload, Cooldown)
     local Value = Payload.Haki or Payload["Rare Boss"] or Payload["Prehistoric Island"] or
         Payload.Mirage or Payload.MoonPhase or Payload.Elite or Payload.Berry or Payload.Fruit
     local Key = Payload.Type .. ":" .. tostring(Value)
 
-    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 60) then
+    if Sent[Key] and os.clock() - Sent[Key] < (Cooldown or 45) then
         return false
     end
 
@@ -314,7 +300,7 @@ Poll("Moon", function()
             ["Type"] = "Moon"
         }
 
-        Send(EventURL, payloadmoon, 1200)
+        Send(EventURL, payloadmoon)
     end
 end)
 
@@ -399,7 +385,7 @@ Poll("Fruit", function()
         if (Fruit:IsA("Tool") or Fruit:IsA("Model")) and Fruit:FindFirstChild("Handle") then
             local Data = FruitData[tostring(Fruit:GetAttribute("ItemId"))] or
                 FruitData[Fruit:GetAttribute("OriginalName")] or FruitData[Fruit.Name]
-            if Data and Data.Value and Data.Value > 2700000 then
+            if Data and Data.Value and Data.Value > 1000000 then
                 local payloadfruit = {
                     ["JobId"] = tostring(game.JobId),
                     ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,

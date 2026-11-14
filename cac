@@ -205,7 +205,7 @@ local function Poll(Name, Check)
                 warn("[Trackstat] " .. Name .. ": timeout")
             end
             Runtime.Jobs[Name] = nil
-            task.wait(5)
+            task.wait(1)
         end
     end)
 end

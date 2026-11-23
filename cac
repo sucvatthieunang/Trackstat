@@ -396,7 +396,7 @@ end)
 local CharliceLoggedCycle
 Poll("God Charlice", function()
     local Remaining, Cycle, Elapsed = getcharlice()
-    if not Remaining or Remaining > CHARLICE_NOTIFY_BEFORE or CharliceLoggedCycle == Cycle then
+    if not Remaining or Remaining > CHARLICE_NOTIFY_BEFORE or CharliceLoggedCycle == Cycle or SeaIndex ~= 3 and then
         return
     end
 

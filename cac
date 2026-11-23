@@ -125,6 +125,35 @@ function havelegnpc()
     return false
 end
 
+
+local CHARLICE_CYCLE = 4 * 3600
+local CHARLICE_NOTIFY_BEFORE = 30 * 60
+
+
+function GetOldestLocation()
+    local Origin = workspace:FindFirstChild("_WorldOrigin")
+    local Locations = Origin and Origin:FindFirstChild("Locations")
+    if not Locations then return end
+    local Oldest, OldestTime
+    for _, Loc in Locations:GetChildren() do
+        local TimeIn = Loc:GetAttribute("TimeIn")
+        if type(TimeIn) == "number" and (not OldestTime or TimeIn < OldestTime) then
+            Oldest, OldestTime = Loc, TimeIn
+        end
+    end
+    return Oldest, OldestTime
+end
+
+function getcharlice()
+    local Loc = GetOldestLocation()
+    local TimeIn = Loc and Loc:GetAttribute("TimeIn")
+    if type(TimeIn) ~= "number" then return end
+    local Elapsed = (tick() - 7 * 3600) - TimeIn
+    local Cycle = math.floor(Elapsed / CHARLICE_CYCLE)
+    local Remaining = CHARLICE_CYCLE - (Elapsed % CHARLICE_CYCLE)
+    return Remaining, Cycle, Elapsed
+end
+
 local Previous = getgenv().TrackstatRuntime
 if Previous and Previous.Stop then
     Previous:Stop()
@@ -232,7 +261,7 @@ Poll("Haki", function()
     end
 end)
 
-for _, Name in {"rip_indra True Form", "Dough King", "Soul Reaper"} do
+for _, Name in {"rip_indra True Form", "Dough King", "Soul Reaper","Cake Prince"} do
     Poll(Name, function()
         if SeaIndex == 3 and HaveRareBoss(Name) then
             local payloadRareBoss = {
@@ -362,6 +391,31 @@ Poll("Castle", function()
 
         Send(EventURL, payloadcastle)
     end
+end)
+
+local CharliceLoggedCycle
+Poll("God Charlice", function()
+    local Remaining, Cycle, Elapsed = getcharlice()
+    if not Remaining or Remaining > CHARLICE_NOTIFY_BEFORE or CharliceLoggedCycle == Cycle then
+        return
+    end
+
+    local payloadcharlice = {
+        ["JobId"] = tostring(game.JobId),
+        ["Players"] = Players.NumPlayers .. "/" .. Players.MaxPlayers,
+        ["ClockTime"] = math.floor(game.Lighting.ClockTime),
+        ["God Charlice"] = string.format("%dm %ds", math.floor(Remaining / 60), math.floor(Remaining % 60)),
+        ["RemainingSeconds"] = math.floor(Remaining),
+        ["SpawnAt"] = os.time() + math.floor(Remaining),
+        ["ServerUptime"] = math.floor(Elapsed),
+        ["IsNight"] = isnight(),
+        ["PlaceID"] = game.PlaceId,
+        ["cac"] = Players.LocalPlayer.Name,
+        ["Type"] = "God Charlice"
+    }
+
+    Send(PrimaryURL, payloadcharlice, 3600)
+    CharliceLoggedCycle = Cycle
 end)
 
 local FruitData
